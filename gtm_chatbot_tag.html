@@ -1,249 +1,319 @@
-' right: 24px;' +
-' z-index: 9999;' +
-' display: flex;' +
-' flex-direction: column;' +
-' align-items: flex-end;' +
-'}' +
-'#gtm-chat-window {' +
-' width: 320px;' +
-' height: 384px;' +
-' background: white;' +
-' border-radius: 16px;' +
-' box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);' +
-' display: flex;' +
-' flex-direction: column;' +
-' border: 1px solid #e5e7eb;' +
-' margin-bottom: 16px;' +
-' overflow: hidden;' +
-' transition: all 0.3s ease-in-out;' +
-' transform: translateY(120%);' +
-' opacity: 0;' +
-' pointer-events: none;' +
-'}' +
-'#gtm-chat-window.open {' +
-' transform: translateY(0);' +
-' opacity: 1;' +
-' pointer-events: auto;' +
-'}' +
-'.gtm-chat-header {' +
-' background-color: ' + CONFIG.primaryColor + ';' +
-' color: white;' +
-' padding: 16px;' +
-' display: flex;' +
-' justify-content: space-between;' +
-' align-items: center;' +
-'}' +
-'.gtm-chat-header-title {' +
-' font-weight: bold;' +
-' font-size: 0.875rem;' +
-' display: flex;' +
-' align-items: center;' +
-' gap: 8px;' +
-'}' +
-'.gtm-close-btn {' +
-' background: none;' +
-' border: none;' +
-' color: #dbeafe;' +
-' cursor: pointer;' +
-' font-size: 1.25rem;' +
-'}' +
-'.gtm-close-btn:hover { color: white; }' +
-'#gtm-chat-messages {' +
-' flex: 1;' +
-' padding: 16px;' +
-' overflow-y: auto;' +
-' font-size: 0.875rem;' +
-' background-color: #f9fafb;' +
-' display: flex;' +
-' flex-direction: column;' +
-' gap: 12px;' +
-'}' +
-'.gtm-message-row {' +
-' display: flex;' +
-' gap: 8px;' +
-' align-items: flex-start;' +
-'}' +
-'.gtm-message-row.user { flex-direction: row-reverse; }' +
-'.gtm-message-bubble {' +
-' padding: 12px;' +
-' border-radius: 8px;' +
-' max-width: 90%;' +
-' line-height: 1.5;' +
-' word-wrap: break-word;' +
-'}' +
-'.gtm-message-bubble.bot {' +
-' background-color: white;' +
-' border: 1px solid #e5e7eb;' +
-' color: ' + CONFIG.textColor + ';' +
-' border-top-left-radius: 0;' +
-'}' +
-'.gtm-message-bubble.user {' +
-' background-color: ' + CONFIG.primaryColor + ';' +
-' color: white;' +
-' border-top-right-radius: 0;' +
-'}' +
-'.gtm-chat-input-area {' +
-' padding: 12px;' +
-' background: white;' +
-' border-top: 1px solid #e5e7eb;' +
-' display: flex;' +
-' gap: 8px;' +
-'}' +
-'#gtm-user-input {' +
-' flex: 1;' +
-' border: 1px solid #d1d5db;' +
-' border-radius: 8px;' +
-' padding: 8px 12px;' +
-' font-size: 0.875rem;' +
-' outline: none;' +
-'}' +
-'#gtm-user-input:focus { border-color: ' + CONFIG.primaryColor + '; }' +
-'#gtm-send-btn {' +
-' background-color: ' + CONFIG.primaryColor + ';' +
-' color: white;' +
-' border: none;' +
-' border-radius: 8px;' +
-' padding: 8px 12px;' +
-' cursor: pointer;' +
-' transition: background-color 0.2s;' +
-'}' +
-'#gtm-send-btn:hover { background-color: #1d4ed8; }' +
-'#gtm-toggle-btn {' +
-' background-color: ' + CONFIG.primaryColor + ';' +
-' color: white;' +
-' width: 56px;' +
-' height: 56px;' +
-' border-radius: 50%;' +
-' border: none;' +
-' box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);' +
-' cursor: pointer;' +
-' display: flex;' +
-' align-items: center;' +
-' justify-content: center;' +
-' font-size: 1.5rem;' +
-' transition: transform 0.2s;' +
-'}' +
-'#gtm-toggle-btn:hover {' +
-' transform: scale(1.1);' +
-' background-color: #1d4ed8;' +
-'}' +
-'.gtm-options-container {' +
-' display: flex;' +
-' flex-direction: column;' +
-' gap: 8px;' +
-' margin-top: 8px;' +
-'}' +
-'.gtm-option-btn {' +
-' background-color: ' + CONFIG.secondaryColor + ';' +
-' border: 1px solid #bfdbfe;' +
-' color: #1d4ed8;' +
-' padding: 8px 12px;' +
-' border-radius: 20px;' +
-' text-align: left;' +
-' font-size: 0.875rem;' +
-' cursor: pointer;' +
-' transition: all 0.2s;' +
-'}' +
-'.gtm-option-btn:hover { background-color: #dbeafe; }' +
-'.gtm-icon {' +
-' width: 1em;' +
-' height: 1em;' +
-' fill: currentColor;' +
-'}';
-document.head.appendChild(style);
+<script>
+  (function () {
+    // Prevent duplicate injection
+    if (document.getElementById('gtm-chatbot-container')) return;
 
-// --- HTML Injection ---
-var container = document.createElement('div');
-container.id = 'gtm-chatbot-container';
-container.innerHTML =
-'<div id="gtm-chat-window">' +
-  ' <div class="gtm-chat-header">' +
-    ' <div class="gtm-chat-header-title">' +
-      ' <svg class="gtm-icon" viewBox="0 0 512 512">
-        <path
-          d="M32 224H16c-8.84 0-16 7.16-16 16v192c0 8.84 7.16 16 16 16h16c8.84 0 16-7.16 16-16V240c0-8.84-7.16-16-16-16zm480 0h-16c-8.84 0-16 7.16-16 16v192c0 8.84 7.16 16 16 16h16c8.84 0 16-7.16 16-16V240c0-8.84-7.16-16-16-16zM256 0C114.62 0 0 114.62 0 256s114.62 256 256 256 256-114.62 256-256S397.38 0 256 0zm0 464c-114.69 0-208-93.31-208-208S141.31 48 256 48s208 93.31 208 208-93.31 208-208 208zm-64-288c0 17.67-14.33 32-32 32s-32-14.33-32-32 14.33-32 32-32 32 14.33 32 32zm192 0c0 17.67-14.33 32-32 32s-32-14.33-32-32 14.33-32 32-32 32 14.33 32 32z" />
-      </svg>' +
-      ' <span>' + CONFIG.botName + '</span>' +
-      ' </div>' +
-    ' <button class="gtm-close-btn" id="gtm-close-btn">×</button>' +
-    ' </div>' +
-  ' <div id="gtm-chat-messages">' +
-    ' <div class="gtm-message-row">' +
-      ' <div class="gtm-message-bubble bot">' +
-        ' こんにちは!サイト全体の内容について質問があればお答えします。<br>' +
-        ' <span id="gtm-status-indicator"
-          style="font-size:0.75rem; color:#60a5fa; margin-top:4px; display:block;">ページ内容を学習中...</span>' +
-        ' </div>' +
-      ' </div>' +
-    ' </div>' +
-  ' <div class="gtm-chat-input-area">' +
-    ' <input type="text" id="gtm-user-input" placeholder="質問を入力...">' +
-    ' <button id="gtm-send-btn">' +
-      ' <svg class="gtm-icon" viewBox="0 0 512 512">
-        <path
-          d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z" />
-      </svg>' +
-      ' </button>' +
-    ' </div>' +
-  '</div>' +
-'<button id="gtm-toggle-btn">' +
-  ' <svg class="gtm-icon" viewBox="0 0 512 512">
-    <path
-      d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 421.1 2.7 466 2.2 466.5c-2.2 2.3-2.8 5.7-1.5 8.7S4.8 480 8 480c66.3 0 116-31.8 140.6-51.4 32.7 12.3 69 19.4 107.4 19.4 141.4 0 256-93.1 256-208S397.4 32 256 32z" />
-  </svg>' +
-  '</button>';
-document.body.appendChild(container);
+    // --- Configuration ---
+    var CONFIG = {
+      botName: 'BigQueryエキスパートAI',
+      primaryColor: '#2563eb',
+      secondaryColor: '#eff6ff',
+      textColor: '#1f2937',
+      // 全ページのURLリスト(ドメイン全体の知識ベース用)
+      allPages: [
+        '/index.html',
+        '/listing-ads.html',
+        '/new-page.html'
+      ]
+    };
 
-// --- Logic ---
-var chatWindow = document.getElementById('gtm-chat-window');
-var toggleBtn = document.getElementById('gtm-toggle-btn');
-var closeBtn = document.getElementById('gtm-close-btn');
-var sendBtn = document.getElementById('gtm-send-btn');
-var userInput = document.getElementById('gtm-user-input');
-var messagesContainer = document.getElementById('gtm-chat-messages');
-var statusIndicator = document.getElementById('gtm-status-indicator');
-var knowledgeChunks = [];
+    // --- CSS Injection ---
+    var style = document.createElement('style');
+    style.textContent =
+      '#gtm-chatbot-container {' +
+      '  font-family: "Noto Sans JP", sans-serif;' +
+      '  position: fixed;' +
+      '  bottom: 24px;' +
+      '  right: 24px;' +
+      '  z-index: 9999;' +
+      '  display: flex;' +
+      '  flex-direction: column;' +
+      '  align-items: flex-end;' +
+      '}' +
+      '#gtm-chat-window {' +
+      '  width: 320px;' +
+      '  height: 384px;' +
+      '  background: white;' +
+      '  border-radius: 16px;' +
+      '  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);' +
+      '  display: flex;' +
+      '  flex-direction: column;' +
+      '  border: 1px solid #e5e7eb;' +
+      '  margin-bottom: 16px;' +
+      '  overflow: hidden;' +
+      '  transition: all 0.3s ease-in-out;' +
+      '  transform: translateY(120%);' +
+      '  opacity: 0;' +
+      '  pointer-events: none;' +
+      '}' +
+      '#gtm-chat-window.open {' +
+      '  transform: translateY(0);' +
+      '  opacity: 1;' +
+      '  pointer-events: auto;' +
+      '}' +
+      '.gtm-chat-header {' +
+      '  background-color: ' + CONFIG.primaryColor + ';' +
+      '  color: white;' +
+      '  padding: 16px;' +
+      '  display: flex;' +
+      '  justify-content: space-between;' +
+      '  align-items: center;' +
+      '}' +
+      '.gtm-chat-header-title {' +
+      '  font-weight: bold;' +
+      '  font-size: 0.875rem;' +
+      '  display: flex;' +
+      '  align-items: center;' +
+      '  gap: 8px;' +
+      '}' +
+      '.gtm-close-btn {' +
+      '  background: none;' +
+      '  border: none;' +
+      '  color: #dbeafe;' +
+      '  cursor: pointer;' +
+      '  font-size: 1.25rem;' +
+      '}' +
+      '.gtm-close-btn:hover { color: white; }' +
+      '#gtm-chat-messages {' +
+      '  flex: 1;' +
+      '  padding: 16px;' +
+      '  overflow-y: auto;' +
+      '  font-size: 0.875rem;' +
+      '  background-color: #f9fafb;' +
+      '  display: flex;' +
+      '  flex-direction: column;' +
+      '  gap: 12px;' +
+      '}' +
+      '.gtm-message-row {' +
+      '  display: flex;' +
+      '  gap: 8px;' +
+      '  align-items: flex-start;' +
+      '}' +
+      '.gtm-message-row.user { flex-direction: row-reverse; }' +
+      '.gtm-message-bubble {' +
+      '  padding: 12px;' +
+      '  border-radius: 8px;' +
+      '  max-width: 90%;' +
+      '  line-height: 1.5;' +
+      '  word-wrap: break-word;' +
+      '}' +
+      '.gtm-message-bubble.bot {' +
+      '  background-color: white;' +
+      '  border: 1px solid #e5e7eb;' +
+      '  color: ' + CONFIG.textColor + ';' +
+      '  border-top-left-radius: 0;' +
+      '}' +
+      '.gtm-message-bubble.user {' +
+      '  background-color: ' + CONFIG.primaryColor + ';' +
+      '  color: white;' +
+      '  border-top-right-radius: 0;' +
+      '}' +
+      '.gtm-chat-input-area {' +
+      '  padding: 12px;' +
+      '  background: white;' +
+      '  border-top: 1px solid #e5e7eb;' +
+      '  display: flex;' +
+      '  gap: 8px;' +
+      '}' +
+      '#gtm-user-input {' +
+      '  flex: 1;' +
+      '  border: 1px solid #d1d5db;' +
+      '  border-radius: 8px;' +
+      '  padding: 8px 12px;' +
+      '  font-size: 0.875rem;' +
+      '  outline: none;' +
+      '}' +
+      '#gtm-user-input:focus { border-color: ' + CONFIG.primaryColor + '; }' +
+      '#gtm-send-btn {' +
+      '  background-color: ' + CONFIG.primaryColor + ';' +
+      '  color: white;' +
+      '  border: none;' +
+      '  border-radius: 8px;' +
+      '  padding: 8px 12px;' +
+      '  cursor: pointer;' +
+      '  transition: background-color 0.2s;' +
+      '}' +
+      '#gtm-send-btn:hover { background-color: #1d4ed8; }' +
+      '#gtm-toggle-btn {' +
+      '  background-color: ' + CONFIG.primaryColor + ';' +
+      '  color: white;' +
+      '  width: 56px;' +
+      '  height: 56px;' +
+      '  border-radius: 50%;' +
+      '  border: none;' +
+      '  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);' +
+      '  cursor: pointer;' +
+      '  display: flex;' +
+      '  align-items: center;' +
+      '  justify-content: center;' +
+      '  font-size: 1.5rem;' +
+      '  transition: transform 0.2s;' +
+      '}' +
+      '#gtm-toggle-btn:hover {' +
+      '  transform: scale(1.1);' +
+      '  background-color: #1d4ed8;' +
+      '}' +
+      '.gtm-options-container {' +
+      '  display: flex;' +
+      '  flex-direction: column;' +
+      '  gap: 8px;' +
+      '  margin-top: 8px;' +
+      '}' +
+      '.gtm-option-btn {' +
+      '  background-color: ' + CONFIG.secondaryColor + ';' +
+      '  border: 1px solid #bfdbfe;' +
+      '  color: #1d4ed8;' +
+      '  padding: 8px 12px;' +
+      '  border-radius: 20px;' +
+      '  text-align: left;' +
+      '  font-size: 0.875rem;' +
+      '  cursor: pointer;' +
+      '  transition: all 0.2s;' +
+      '}' +
+      '.gtm-option-btn:hover { background-color: #dbeafe; }' +
+      '.gtm-icon {' +
+      '  width: 1em;' +
+      '  height: 1em;' +
+      '  fill: currentColor;' +
+      '}';
+    document.head.appendChild(style);
 
-// 1. Toggle Chat
-function toggleChat() {
-chatWindow.classList.toggle('open');
-}
-toggleBtn.addEventListener('click', toggleChat);
-closeBtn.addEventListener('click', toggleChat);
+    // --- HTML Injection ---
+    var container = document.createElement('div');
+    container.id = 'gtm-chatbot-container';
+    container.innerHTML =
+      '<div id="gtm-chat-window">' +
+      '  <div class="gtm-chat-header">' +
+      '    <div class="gtm-chat-header-title">' +
+      '      <svg class="gtm-icon" viewBox="0 0 512 512"><path d="M32 224H16c-8.84 0-16 7.16-16 16v192c0 8.84 7.16 16 16 16h16c8.84 0 16-7.16 16-16V240c0-8.84-7.16-16-16-16zm480 0h-16c-8.84 0-16 7.16-16 16v192c0 8.84 7.16 16 16 16h16c8.84 0 16-7.16 16-16V240c0-8.84-7.16-16-16-16zM256 0C114.62 0 0 114.62 0 256s114.62 256 256 256 256-114.62 256-256S397.38 0 256 0zm0 464c-114.69 0-208-93.31-208-208S141.31 48 256 48s208 93.31 208 208-93.31 208-208 208zm-64-288c0 17.67-14.33 32-32 32s-32-14.33-32-32 14.33-32 32-32 32 14.33 32 32zm192 0c0 17.67-14.33 32-32 32s-32-14.33-32-32 14.33-32 32-32 32 14.33 32 32z"/></svg>' +
+      '      <span>' + CONFIG.botName + '</span>' +
+      '    </div>' +
+      '    <button class="gtm-close-btn" id="gtm-close-btn">×</button>' +
+      '  </div>' +
+      '  <div id="gtm-chat-messages">' +
+      '    <div class="gtm-message-row">' +
+      '      <div class="gtm-message-bubble bot">' +
+      '        こんにちは!サイト全体の内容について質問があればお答えします。<br>' +
+      '        <span id="gtm-status-indicator" style="font-size:0.75rem; color:#60a5fa; margin-top:4px; display:block;">ページ内容を学習中...</span>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <div class="gtm-chat-input-area">' +
+      '    <input type="text" id="gtm-user-input" placeholder="質問を入力...">' +
+      '    <button id="gtm-send-btn">' +
+      '      <svg class="gtm-icon" viewBox="0 0 512 512"><path d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z"/></svg>' +
+      '    </button>' +
+      '  </div>' +
+      '</div>' +
+      '<button id="gtm-toggle-btn">' +
+      '  <svg class="gtm-icon" viewBox="0 0 512 512"><path d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 421.1 2.7 466 2.2 466.5c-2.2 2.3-2.8 5.7-1.5 8.7S4.8 480 8 480c66.3 0 116-31.8 140.6-51.4 32.7 12.3 69 19.4 107.4 19.4 141.4 0 256-93.1 256-208S397.4 32 256 32z"/></svg>' +
+      '</button>';
+    document.body.appendChild(container);
 
-// 2. Build Knowledge Base from All Pages
-function buildKnowledgeBase() {
-// A. Current Page Content
-parseContent(document.body, '現在のページ');
+    // --- Logic ---
+    var chatWindow = document.getElementById('gtm-chat-window');
+    var toggleBtn = document.getElementById('gtm-toggle-btn');
+    var closeBtn = document.getElementById('gtm-close-btn');
+    var sendBtn = document.getElementById('gtm-send-btn');
+    var userInput = document.getElementById('gtm-user-input');
+    var messagesContainer = document.getElementById('gtm-chat-messages');
+    var statusIndicator = document.getElementById('gtm-status-indicator');
+    var knowledgeChunks = [];
 
-// B. Load All Pages from Static List
-if (CONFIG.allPages && CONFIG.allPages.length > 0) {
-statusIndicator.innerText = CONFIG.allPages.length + '件のページを読込中...';
+    // 1. Toggle Chat
+    function toggleChat() {
+      chatWindow.classList.toggle('open');
+    }
+    toggleBtn.addEventListener('click', toggleChat);
+    closeBtn.addEventListener('click', toggleChat);
 
-var fetchPromises = [];
-for (var i = 0; i < CONFIG.allPages.length; i++) { var pageUrl=CONFIG.allPages[i]; // Skip current page to avoid
-  duplicate if (window.location.pathname !==pageUrl) { fetchPromises.push(fetchAndParseUrl(pageUrl)); } }
-  Promise.all(fetchPromises).then(function () { statusIndicator.innerText='✓ 学習完了' ;
-  statusIndicator.style.color='#10b981' ; setTimeout(showOptions, 500); }).catch(function (e) { console.error('GTM
-  Chatbot: Failed to build knowledge base', e); statusIndicator.innerText='⚠ 学習エラー' ;
-  statusIndicator.style.color='#ef4444' ; }); } else { statusIndicator.innerText='✓ 学習完了' ;
-  statusIndicator.style.color='#10b981' ; setTimeout(showOptions, 500); } } function fetchAndParseUrl(url) { return
-  fetch(url).then(function (response) { if (response.ok) { return response.text(); } throw new Error('Failed to fetch: ' + url);
+    // 2. Build Knowledge Base from All Pages
+    function buildKnowledgeBase() {
+      // A. Current Page Content
+      parseContent(document.body, '現在のページ');
+
+      // B. Load All Pages from Static List
+      if (CONFIG.allPages && CONFIG.allPages.length > 0) {
+        statusIndicator.innerText = CONFIG.allPages.length + '件のページを読込中...';
+
+        var fetchPromises = [];
+        for (var i = 0; i < CONFIG.allPages.length; i++) {
+          var pageUrl = CONFIG.allPages[i];
+          // Skip current page to avoid duplicate
+          if (window.location.pathname !== pageUrl) {
+            fetchPromises.push(fetchAndParseUrl(pageUrl));
+          }
+        }
+
+        Promise.all(fetchPromises).then(function () {
+          statusIndicator.innerText = '✓ 学習完了';
+          statusIndicator.style.color = '#10b981';
+          setTimeout(showOptions, 500);
+        }).catch(function (e) {
+          console.error('GTM Chatbot: Failed to build knowledge base', e);
+          statusIndicator.innerText = '⚠ 学習エラー';
+          statusIndicator.style.color = '#ef4444';
+        });
+      } else {
+        statusIndicator.innerText = '✓ 学習完了';
+        statusIndicator.style.color = '#10b981';
+        setTimeout(showOptions, 500);
+      }
+    }
+
+    function fetchAndParseUrl(url) {
+      return fetch(url).then(function (response) {
+        if (response.ok) {
+          return response.text();
+        }
+        throw new Error('Failed to fetch: ' + url);
       }).then(function (text) {
         var parser = new DOMParser();
-        var doc = parser.parseFromString(text, ' text/html'); var sourceName=url.split('/').pop() || '関連ページ' ;
-  parseContent(doc.body, sourceName); }).catch(function (err) { console.warn('Failed to fetch:', url, err); }); }
-  function parseContent(rootNode, sourceName) { var contentNodes=rootNode.querySelectorAll('h1, h2, h3, p, li'); var
-  currentSection={ title: sourceName, content: '' }; for (var i=0; i < contentNodes.length; i++) { var
-  node=contentNodes[i]; var text=node.innerText.trim(); if (!text) continue; if (node.tagName==='H1' ||
-  node.tagName==='H2' || node.tagName==='H3' ) { if (currentSection.content) { knowledgeChunks.push({ title:
-  currentSection.title, content: currentSection.content, fullText: (currentSection.title + "\n" +
-  currentSection.content).toLowerCase() }); } currentSection={ title: text, content: '' }; } else {
-  currentSection.content +=text + '\n' ; } } if (currentSection.content) { knowledgeChunks.push({ title:
-  currentSection.title, content: currentSection.content, fullText: (currentSection.title + "\n" +
-  currentSection.content).toLowerCase() }); } } // 3. Search Logic function findBestAnswer(userQuery) { if
-  (knowledgeChunks.length===0) return "ページの内容を読み取れませんでした。" ; var query=userQuery.toLowerCase().replace(/[\s　]+/g, ' '
-  ).split(' ');
+        var doc = parser.parseFromString(text, 'text/html');
+        var sourceName = url.split('/').pop() || '関連ページ';
+        parseContent(doc.body, sourceName);
+      }).catch(function (err) {
+        console.warn('Failed to fetch:', url, err);
+      });
+    }
+
+    function parseContent(rootNode, sourceName) {
+      var contentNodes = rootNode.querySelectorAll('h1, h2, h3, p, li');
+      var currentSection = { title: sourceName, content: '' };
+
+      for (var i = 0; i < contentNodes.length; i++) {
+        var node = contentNodes[i];
+        var text = node.innerText.trim();
+        if (!text) continue;
+
+        if (node.tagName === 'H1' || node.tagName === 'H2' || node.tagName === 'H3') {
+          if (currentSection.content) {
+            knowledgeChunks.push({
+              title: currentSection.title,
+              content: currentSection.content,
+              fullText: (currentSection.title + "\n" + currentSection.content).toLowerCase()
+            });
+          }
+          currentSection = { title: text, content: '' };
+        } else {
+          currentSection.content += text + '\n';
+        }
+      }
+
+      if (currentSection.content) {
+        knowledgeChunks.push({
+          title: currentSection.title,
+          content: currentSection.content,
+          fullText: (currentSection.title + "\n" + currentSection.content).toLowerCase()
+        });
+      }
+    }
+
+    // 3. Search Logic
+    function findBestAnswer(userQuery) {
+      if (knowledgeChunks.length === 0) return "ページの内容を読み取れませんでした。";
+
+      var query = userQuery.toLowerCase().replace(/[\s　]+/g, ' ').split(' ');
       var bestChunk = null;
       var maxScore = 0;
 
@@ -252,33 +322,112 @@ for (var i = 0; i < CONFIG.allPages.length; i++) { var pageUrl=CONFIG.allPages[i
         var score = 0;
 
         for (var j = 0; j < query.length; j++) {
-  row=document.createElement(' div'); row.className='gtm-message-row ' + sender; var
-  bubble=document.createElement('div'); bubble.className='gtm-message-bubble ' + sender; bubble.innerText=text;
-  row.appendChild(bubble); messagesContainer.appendChild(row);
-  messagesContainer.scrollTop=messagesContainer.scrollHeight; } function handleSend() { var text=userInput.value.trim();
-  if (!text) return; addMessage(text, 'user' ); userInput.value='' ; window.dataLayer=window.dataLayer || [];
-  window.dataLayer.push({ 'event' : 'chatbot_query' , 'query' : text }); setTimeout(function () { var
-  answer=findBestAnswer(text); addMessage(answer, 'bot' ); }, 500); } sendBtn.addEventListener('click', handleSend);
-  userInput.addEventListener('keypress', function (e) { if (e.key==='Enter' ) handleSend(); }); // 5. Show Options
-  function showOptions() { var existing=messagesContainer.querySelectorAll('.gtm-options-container'); for (var i=0; i <
-  existing.length; i++) { existing[i].remove(); } var optionsContainer=document.createElement('div');
-  optionsContainer.className='gtm-options-container' ; var suggestions=[]; for (var i=0; i < knowledgeChunks.length;
-  i++) { var c=knowledgeChunks[i]; if (c.title.length> 2 && c.title !== 'General' && c.title.indexOf('Current Page') ===
-  -1) {
-  suggestions.push(c);
-  if (suggestions.length >= 3) break;
-  }
-  }
+          if (chunk.fullText.indexOf(query[j]) !== -1) score += 1;
+        }
 
-  if (suggestions.length === 0) return;
+        if (chunk.title.toLowerCase().indexOf(userQuery.toLowerCase()) !== -1) score += 2;
 
-  for (var i = 0; i < suggestions.length; i++) { var chunk=suggestions[i]; var btn=document.createElement('button');
-    btn.className='gtm-option-btn' ; btn.innerText=chunk.title + 'について' ; btn.onclick=(function (chunkTitle) { return
-    function () { addMessage(chunkTitle + 'について' , 'user' ); setTimeout(function () {
-    addMessage(findBestAnswer(chunkTitle), 'bot' ); }, 500); }; })(chunk.title); optionsContainer.appendChild(btn); }
-    var row=document.createElement('div'); row.className='gtm-message-row bot' ; var
-    bubble=document.createElement('div'); bubble.className='gtm-message-bubble bot' ;
-    bubble.innerHTML='<p style="margin-bottom:8px">気になるトピックを選んでください:</p>' ; bubble.appendChild(optionsContainer);
-    row.appendChild(bubble); messagesContainer.appendChild(row);
-    messagesContainer.scrollTop=messagesContainer.scrollHeight; } // Initialize setTimeout(buildKnowledgeBase, 1000);
-    })(); </script>
+        if (score > maxScore) {
+          maxScore = score;
+          bestChunk = chunk;
+        }
+      }
+
+      if (bestChunk && maxScore > 0) {
+        var preview = bestChunk.content.substring(0, 200);
+        if (bestChunk.content.length > 200) preview += '...';
+        return '【' + bestChunk.title + '】\n' + preview;
+      } else {
+        return "申し訳ありません、このページ内にその情報は見つかりませんでした。";
+      }
+    }
+
+    // 4. Messaging Logic
+    function addMessage(text, sender) {
+      var row = document.createElement('div');
+      row.className = 'gtm-message-row ' + sender;
+      var bubble = document.createElement('div');
+      bubble.className = 'gtm-message-bubble ' + sender;
+      bubble.innerText = text;
+      row.appendChild(bubble);
+      messagesContainer.appendChild(row);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function handleSend() {
+      var text = userInput.value.trim();
+      if (!text) return;
+
+      addMessage(text, 'user');
+      userInput.value = '';
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        'event': 'chatbot_query',
+        'query': text
+      });
+
+      setTimeout(function () {
+        var answer = findBestAnswer(text);
+        addMessage(answer, 'bot');
+      }, 500);
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    userInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') handleSend();
+    });
+
+    // 5. Show Options
+    function showOptions() {
+      var existing = messagesContainer.querySelectorAll('.gtm-options-container');
+      for (var i = 0; i < existing.length; i++) {
+        existing[i].remove();
+      }
+
+      var optionsContainer = document.createElement('div');
+      optionsContainer.className = 'gtm-options-container';
+
+      var suggestions = [];
+      for (var i = 0; i < knowledgeChunks.length; i++) {
+        var c = knowledgeChunks[i];
+        if (c.title.length > 2 && c.title !== 'General' && c.title.indexOf('Current Page') === -1) {
+          suggestions.push(c);
+          if (suggestions.length >= 3) break;
+        }
+      }
+
+      if (suggestions.length === 0) return;
+
+      for (var i = 0; i < suggestions.length; i++) {
+        var chunk = suggestions[i];
+        var btn = document.createElement('button');
+        btn.className = 'gtm-option-btn';
+        btn.innerText = chunk.title + 'について';
+        btn.onclick = (function (chunkTitle) {
+          return function () {
+            addMessage(chunkTitle + 'について', 'user');
+            setTimeout(function () {
+              addMessage(findBestAnswer(chunkTitle), 'bot');
+            }, 500);
+          };
+        })(chunk.title);
+        optionsContainer.appendChild(btn);
+      }
+
+      var row = document.createElement('div');
+      row.className = 'gtm-message-row bot';
+      var bubble = document.createElement('div');
+      bubble.className = 'gtm-message-bubble bot';
+      bubble.innerHTML = '<p style="margin-bottom:8px">気になるトピックを選んでください:</p>';
+      bubble.appendChild(optionsContainer);
+      row.appendChild(bubble);
+      messagesContainer.appendChild(row);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Initialize
+    setTimeout(buildKnowledgeBase, 1000);
+
+  })();
+</script>
